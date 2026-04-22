@@ -23,7 +23,13 @@
 
 ---
 
-## 💻 Como Executar o Desafio
+## Técnicas Aplicadas (Fase 2)
+@todo
+
+## Resultados Finais
+@todo
+
+## Como Executar
 
 ```bash
 # Navegue até a raiz da pasta do desafio
@@ -40,3 +46,7 @@ python src/push_prompts.p
 
 # Executar avaliação
 python src/evaluate.py
+```
+
+## Evidências no LangSmith
+@todo

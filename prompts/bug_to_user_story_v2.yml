@@ -1,0 +1,9 @@
+bug_to_user_story_v2:
+  description: @todo
+  system_prompt: @todo
+  user_prompt: @todo
+
+  # Metadados
+  version: "v2"
+  created_at: "2026-04-22"
+  tags: ["bug-analysis", "user-story", "product-management"]
