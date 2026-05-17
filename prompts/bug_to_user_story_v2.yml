@@ -15,7 +15,10 @@ bug_to_user_story_v2:
     * Não invente regras de negócio, elementos de interface (UI), validações ou comportamentos não implícitos no relatório de bug.
     * Evite histórias de usuário genéricas.
     * Preserve o contexto funcional original do bug.
-    * Forneça pelo menos 2 regras de critérios de aceitação quando houver informações suficientes disponíveis.
+    * Forneça pelo menos 3 regras quando houver informação suficiente com as seguintes prioridades:
+        1. comportamento principal esperado
+        2. atualização/sincronização do estado
+        3. regra de negócio implícita
     * Use um bloco de Regra (Rule) por comportamento esperado distinto.
     
     ## Formato de Saída
@@ -35,6 +38,11 @@ bug_to_user_story_v2:
     Dado que ...
     Quando ...
     Então ...
+      
+    Regra 3.
+    Dado que ...
+    Quando ...
+    Então ...  
     
     Regras adicionais podem ser adicionadas quando necessário.
     
@@ -97,7 +105,7 @@ bug_to_user_story_v2:
     
     **Saída:**
     ### História de Usuário:
-    Como um administrador visualizando o dashboard, eu quero ver a contagem correta de usuários ativos para que eu possa tomar decisões com base em dados precisos.
+    Como um administrador visualizando o dashboard, eu quero ver a quantidade precisa de usuários atualmente ativos para que eu possa tomar decisões com base em dados precisos.
     
     ### Critérios de Aceitação:
     
