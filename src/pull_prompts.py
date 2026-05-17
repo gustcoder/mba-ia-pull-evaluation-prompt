@@ -28,13 +28,14 @@ def pull_prompts_from_langsmith():
 
     prompt = client.pull_prompt("leonanluppi/bug_to_user_story_v1")
 
+    description = "Prompt para converter relatos de bugs em User Stories"
     prompt_data = {
         "bug_to_user_story_v1": {
-            "description": "Prompt para converter relatos de bugs em User Stories",
+            "description": f"{description}",
             "system_prompt": prompt.messages[0].prompt.template,
             "user_prompt": prompt.messages[1].prompt.template,
             "version": "v1",
-            "created_at": "2025-01-15",
+            "created_at": date.today().isoformat(),
             "tags": [
                 "bug-analysis",
                 "user-story",

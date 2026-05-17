@@ -35,6 +35,9 @@
 # Navegue até a raiz da pasta do desafio
 cd mba-ia-pull-evaluation-prompt
 
+# Ativar ambiente virtual do Python
+source venv/bin/activate
+
 # Executar pull dos prompts ruins 
 python src/pull_prompts.py
 
