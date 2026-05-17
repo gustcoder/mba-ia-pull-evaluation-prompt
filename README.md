@@ -24,10 +24,11 @@
 ---
 
 ## Técnicas Aplicadas (Fase 2)
-@todo
+* Role Prompting: trabalhar com um papel designado para a IA ajuda no contexto e na atuação na hora de avaliar e processar os prompts, por isso escolhi esta técnica.
+* Few-Shot Learning: exemplos, juntamente com o papel definido, constroem um bom combo para execução assertiva de tarefas visando os outputs desejados.
 
 ## Resultados Finais
-@todo
+<img width="914" height="1023" alt="image" src="https://github.com/user-attachments/assets/1dc93fe3-d93c-4d1b-b062-d8fb0ecb4943" />
 
 ## Como Executar
 
@@ -49,4 +50,6 @@ docker exec -it python_app_evaluation_prompt python src/evaluate.py
 ```
 
 ## Evidências no LangSmith
-@todo
+<img width="1902" height="900" alt="image" src="https://github.com/user-attachments/assets/e7b964ae-9f48-40a4-ba48-20866752abab" />
+[Tracing/mba-ia-pull-evaluation-prompt](https://smith.langchain.com/o/06c96cef-80d5-45d8-a69a-c82731cb692c/projects/p/e1280f82-97ec-420c-b1b8-79913fd1735c?scroll_to=feedback&timeModel=%7B%22duration%22%3A%221h%22%7D)
+<img width="1265" height="892" alt="image" src="https://github.com/user-attachments/assets/43226f8b-c6df-493b-a8e2-8610a5144bf8" />
