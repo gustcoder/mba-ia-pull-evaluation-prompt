@@ -35,20 +35,17 @@
 # Navegue até a raiz da pasta do desafio
 cd mba-ia-pull-evaluation-prompt
 
-# Ativar ambiente virtual do Python
-source venv/bin/activate
+# Subir ambiente Docker
+docker compose up -d
 
 # Executar pull dos prompts ruins 
-python src/pull_prompts.py
-
-# Refatorar prompts
-Edite manualmente o arquivo prompts/bug_to_user_story_v2.yml aplicando as técnicas aprendidas no curso.
+docker exec -it python_app_evaluation_prompt python src/pull_prompts.py
 
 # Fazer push dos prompts otimizados
-python src/push_prompts.p
+docker exec -it python_app_evaluation_prompt python src/push_prompts.py
 
 # Executar avaliação
-python src/evaluate.py
+docker exec -it python_app_evaluation_prompt python src/evaluate.py
 ```
 
 ## Evidências no LangSmith
