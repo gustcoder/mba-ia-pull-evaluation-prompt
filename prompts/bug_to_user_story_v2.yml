@@ -93,7 +93,7 @@ bug_to_user_story_v2:
     ## Exemplo 3 (Complexidade: Simples)
     
     **Relatório de bug:**
-    "O dashboard mostra uma contagem incorreta de usuários ativos. Ele exibe 50, mas existem apenas 42 na lista."
+    "Dashboard mostra contagem errada de usuários ativos. Mostra 50 mas só há 42 na lista."
     
     **Saída:**
     ### História de Usuário:
@@ -169,6 +169,755 @@ bug_to_user_story_v2:
     - **Ação recomendada:** Implementar middleware de autorização
     - **Domínio:** SaaS
     - **Categoria:** Security
+    
+    ## Exemplo 5 (Complexidade: Média)
+
+    **Relatório de bug:**  
+    "Webhook de pagamento aprovado não está sendo chamado.
+    
+    Steps to reproduce:
+    1. Fazer pedido de R$ 100
+    2. Pagar com cartão de crédito
+    3. Pagamento é aprovado no gateway
+    4. Sistema não recebe notificação
+    5. Status do pedido fica como "pendente"
+    
+    Logs do gateway mostram: HTTP 500 ao tentar POST /api/webhooks/payment"
+    
+    **Saída:**
+    
+    ### História de Usuário
+    
+    Como o sistema de e-commerce, eu quero receber notificações de pagamento aprovado via webhook, para que o status dos pedidos seja atualizado automaticamente após confirmação do pagamento.
+    
+    ### Critérios de Aceitação
+    
+    **Regra 1.**  
+    Dado que um pagamento é aprovado no gateway  
+    Quando o gateway envia `POST /api/webhooks/payment`  
+    Então o endpoint deve retornar `HTTP 200`
+    
+    **Regra 2.**  
+    Dado que o webhook de pagamento é recebido com sucesso  
+    Quando o evento é processado  
+    Então o status do pedido deve mudar de `"pendente"` para `"aprovado"`
+    
+    **Regra 3.**  
+    Dado que o pedido foi aprovado  
+    Quando o processamento do webhook for concluído  
+    Então o cliente deve receber um email de confirmação
+    
+    **Regra 4.**  
+    Dado que um webhook é processado  
+    Quando o evento é recebido pelo sistema  
+    Então a operação deve ser registrada em log para auditoria
+    
+    **Regra 5.**  
+    Dado que o gateway envia notificações de pagamento  
+    Quando ocorrer uma falha no processamento  
+    Então o sistema deve registrar informações detalhadas para diagnóstico
+    
+    ### Contexto Técnico
+    
+    - **Problema identificado:** endpoint retornando `HTTP 500`
+    - **Endpoint afetado:** `/api/webhooks/payment`
+    - **Impacto:** pedidos permanecem com status incorreto
+    - **Efeito no negócio:** cliente não recebe atualização automática do pedido
+    - **Logs:** falha no processamento do webhook identificada pelo gateway
+    - **Domínio:** SaaS
+    - **Categoria:** Integração
+    
+    ## Exemplo 6 (Complexidade: Média)
+
+    **Relatório de bug:**  
+    "Pipeline de vendas calcula valor total errado quando há desconto.
+    
+    Cenário:
+    - Produto A: R$ 1.000
+    - Produto B: R$ 500
+    - Desconto: 10%
+    - Valor esperado: R$ 1.350
+    - Valor mostrado: R$ 1.400
+    
+    O sistema aplica desconto só no primeiro produto."
+    
+    **Saída:**
+    
+    ### História de Usuário
+    
+    Como um vendedor gerenciando oportunidades no pipeline, eu quero que o valor total seja calculado corretamente quando aplico descontos, para que eu possa apresentar propostas precisas aos clientes.
+    
+    ### Critérios de Aceitação
+    
+    **Regra 1.**  
+    Dado que tenho uma oportunidade contendo múltiplos produtos  
+    Quando aplico um desconto percentual  
+    Então o desconto deve ser aplicado sobre a soma total de todos os produtos
+    
+    **Regra 2.**  
+    Dado que existe um desconto percentual configurado  
+    Quando o sistema calcular o valor final da oportunidade  
+    Então a fórmula utilizada deve ser: `(soma dos produtos) × (1 - desconto%)`
+    
+    **Regra 3.**  
+    Dado que o valor total é exibido ao usuário  
+    Quando o cálculo for apresentado  
+    Então o detalhamento deve mostrar subtotal, valor do desconto e total final
+    
+    **Regra 4.**  
+    Dado que uma oportunidade possui múltiplos itens  
+    Quando o cálculo for processado  
+    Então nenhum produto deve ser excluído da aplicação do desconto
+    
+    **Regra 5.**  
+    Dado que uma proposta comercial é gerada  
+    Quando o valor total for apresentado ao cliente  
+    Então o valor exibido deve corresponder ao cálculo correto da oportunidade
+    
+    ### Exemplo de Cálculo
+    
+    - Produto A: R$ 1.000  
+    - Produto B: R$ 500  
+    - Subtotal: R$ 1.500  
+    - Desconto 10%: -R$ 150  
+    - Total esperado: R$ 1.350  
+    
+    ### Contexto Técnico
+    
+    - **Bug atual:** desconto sendo aplicado apenas no primeiro produto
+    - **Resultado incorreto atual:** R$ 1.400
+    - **Resultado esperado:** R$ 1.350
+    - **Domínio:** CRM
+    - **Categoria:** Regra de Negócio
+    
+    ## Exemplo 7 (Complexidade: Complexa)
+
+    **Relatório de bug:**  
+    "Sistema de checkout com múltiplas falhas críticas.
+    
+    PROBLEMAS IDENTIFICADOS:
+    
+    1. SEGURANÇA - XSS no campo de cupom:
+       - Input: `<script>alert('xss')</script>`
+       - Sistema executa o script
+       - Não há sanitização de entrada
+    
+    2. INTEGRAÇÃO - Gateway de pagamento retorna erro intermitente:
+       - `POST /api/payment/process` retorna `504 Gateway Timeout` em 30% dos casos
+       - Clientes são cobrados mas pedido não é criado
+       - Logs: `Connection pool exhausted` no Postgres
+    
+    3. LÓGICA DE NEGÓCIO - Race condition em cupons:
+       - Cupom `PROMO10` (limite: 100 usos)
+       - Sistema permitiu 147 usos
+       - Verificação de limite não é atômica
+    
+    4. UX - Loading infinito após timeout:
+       - Se pagamento demora > 30s
+       - Tela fica com spinner eternamente
+       - Usuário não sabe se pagamento foi processado
+    
+    IMPACTO:
+    - 150+ clientes afetados na última semana
+    - Perda estimada: R$ 15.000 em cupons indevidos
+    - 45 tickets de suporte abertos
+    - Rating caiu de 4.5 para 3.2 estrelas"
+    
+    **Saída:**
+    
+    # História de Usuário
+    
+    Como um cliente finalizando minha compra, eu quero um processo de checkout seguro, confiável e com feedback claro, para que eu possa concluir minhas compras sem preocupações e compreender claramente o status do meu pagamento.
+    
+    ## Critérios de Aceitação
+    
+    ### Segurança — Proteção contra XSS
+    
+    **Regra 1.**  
+    Dado que estou inserindo um cupom de desconto  
+    Quando digito qualquer conteúdo no campo  
+    Então o sistema deve sanitizar a entrada antes do processamento
+    
+    **Regra 2.**  
+    Dado que um usuário insere scripts ou conteúdo malicioso  
+    Quando a informação for exibida ou processada  
+    Então o sistema nunca deve executar código enviado pelo usuário
+    
+    **Regra 3.**  
+    Dado que entradas de usuário são processadas  
+    Quando a validação ocorrer  
+    Então o backend também deve validar e sanitizar os dados
+    
+    ---
+    
+    ### Integração — Processamento confiável de pagamentos
+    
+    **Regra 4.**  
+    Dado que estou finalizando uma compra  
+    Quando clico em "Finalizar Pagamento"  
+    Então o sistema deve concluir o processamento em até 30 segundos
+    
+    **Regra 5.**  
+    Dado que ocorrer timeout durante a integração com gateway  
+    Quando a requisição falhar  
+    Então o sistema deve executar tentativas automáticas utilizando retry com backoff
+    
+    **Regra 6.**  
+    Dado que o pagamento foi aprovado pelo gateway  
+    Quando o processamento terminar  
+    Então o pedido obrigatoriamente deve ser criado
+    
+    **Regra 7.**  
+    Dado que ocorreu falha durante comunicação com o gateway  
+    Quando houver nova tentativa de processamento  
+    Então o cliente nunca deve ser cobrado múltiplas vezes
+    
+    ---
+    
+    ### Lógica de Negócio — Controle de cupons
+    
+    **Regra 8.**  
+    Dado que um cupom possui limite de utilização  
+    Quando múltiplos usuários tentarem utilizá-lo simultaneamente  
+    Então o sistema deve garantir processamento atômico
+    
+    **Regra 9.**  
+    Dado que o cupom `PROMO10` possui limite de 100 usos  
+    Quando o limite for atingido  
+    Então novas tentativas devem ser recusadas
+    
+    **Regra 10.**  
+    Dado que o cupom atingiu o limite máximo  
+    Quando outro usuário tentar utilizá-lo  
+    Então a mensagem `"cupom esgotado"` deve ser exibida
+    
+    ---
+    
+    ### UX — Feedback e experiência do usuário
+    
+    **Regra 11.**  
+    Dado que o pagamento está em processamento  
+    Quando o tempo ultrapassar 30 segundos  
+    Então o sistema deve informar `"Processando pagamento, por favor aguarde..."`
+    
+    **Regra 12.**  
+    Dado que ocorrer timeout durante o pagamento  
+    Quando a operação não for concluída imediatamente  
+    Então deve ser exibida a mensagem `"Estamos verificando seu pagamento"`
+    
+    **Regra 13.**  
+    Dado que o usuário recebeu timeout  
+    Quando visualizar a tela  
+    Então deve existir opção de `"Consultar Status"` ou `"Tentar Novamente"`
+    
+    **Regra 14.**  
+    Dado que uma falha ocorre durante processamento  
+    Quando a tela estiver aguardando retorno  
+    Então nunca deve permanecer em loading infinito
+    
+    ## Critérios Técnicos
+    
+    ### Segurança
+    
+    - Implementar sanitização de entrada utilizando biblioteca apropriada
+    - Adicionar validação no backend (defesa em profundidade)
+    - Implementar política CSP (Content Security Policy)
+    
+    ### Performance e Confiabilidade
+    
+    - Revisar configuração do pool de conexões do Postgres
+    - Implementar retry pattern com exponential backoff
+    - Adicionar circuit breaker para comunicação com gateway
+    - Definir timeout máximo de processamento
+    
+    ### Controle de Cupons
+    
+    - Implementar transações atômicas
+    - Utilizar lock otimista ou pessimista
+    - Adicionar mecanismo de idempotência
+    
+    ### UX e Observabilidade
+    
+    - Implementar consulta assíncrona de status
+    - Criar webhook de confirmação
+    - Adicionar logs estruturados
+    - Criar monitoramento e alertas
+    
+    ## Contexto do Bug
+    
+    - **Severidade:** Crítica
+    - **Clientes impactados:** 150+
+    - **Perdas estimadas:** R$ 15.000
+    - **Tickets abertos:** 45
+    - **Impacto no rating:** 4.5 → 3.2
+    
+    ### Componentes afetados
+    
+    **Frontend**
+    - Checkout
+    - Campo de cupom
+    - Estados de loading
+    
+    **Backend**
+    - API de pagamentos
+    - Validação de cupons
+    - Conexões de banco
+    
+    **Infraestrutura**
+    - Pool de conexões Postgres
+    
+    **Integrações**
+    - Gateway de pagamento
+    
+    ## Tasks Técnicas Sugeridas
+    
+    1. Implementar sanitização no campo de cupom  
+    2. Revisar configuração do connection pool  
+    3. Adicionar retry pattern no serviço de pagamento  
+    4. Implementar controle atômico de cupons  
+    5. Melhorar feedback visual do checkout  
+    6. Criar alertas para taxa de timeout  
+    7. Adicionar testes de carga  
+    8. Criar testes específicos de race condition
+    
+    ## Exemplo 8 (Complexidade: Complexa)
+
+    **Relatório de bug:**  
+    "Sistema de relatórios gerenciais com problemas severos de performance e dados incorretos.
+    
+    CONTEXTO:
+    Aplicação SaaS B2B com 500+ empresas clientes, cada uma com 50-5000 usuários.
+    
+    PROBLEMAS:
+    
+    1. PERFORMANCE - Query N+1 no dashboard executivo
+    2. LÓGICA DE NEGÓCIO - Cálculo de MRR inconsistente
+    3. CACHE - Dados desatualizados
+    4. CONCORRÊNCIA - Exportações travando servidor
+    
+    IMPACTO:
+    - 15 clientes enterprise ameaçando cancelar
+    - CEO não confia nos números
+    - Time CS consumindo 40h/semana
+    - Forecasting comprometido"
+    
+    **Saída:**
+    
+    # História de Usuário
+    
+    Como um executivo utilizando o sistema de relatórios, eu quero visualizar dashboards e relatórios rápidos, consistentes e atualizados, para que eu possa tomar decisões estratégicas confiando totalmente nos dados apresentados.
+    
+    ## Critérios de Aceitação
+    
+    ### Performance — Dashboard responsivo
+    
+    **Regra 1.**  
+    Dado que acesso o dashboard executivo  
+    Quando realizo uma requisição para `GET /api/reports/executive-dashboard`  
+    Então o carregamento completo deve ocorrer em menos de 3 segundos
+    
+    **Regra 2.**  
+    Dado que empresas possuem até 10.000 usuários  
+    Quando métricas forem processadas  
+    Então a aplicação deve manter performance adequada sem degradação perceptível
+    
+    **Regra 3.**  
+    Dado que o sistema está em horário de pico  
+    Quando múltiplas consultas forem executadas  
+    Então o consumo de CPU do banco deve permanecer abaixo de 70%
+    
+    ---
+    
+    ### Regra de Negócio — MRR consistente
+    
+    **Regra 4.**  
+    Dado que consulto métricas financeiras  
+    Quando verifico dashboard, relatórios e APIs  
+    Então o valor de MRR deve ser idêntico em todas as fontes
+    
+    **Regra 5.**  
+    Dado que o cálculo de receita recorrente é realizado  
+    Quando houver upgrades, downgrades ou cancelamentos  
+    Então o sistema deve seguir uma regra única documentada
+    
+    **Regra 6.**  
+    Dado que cálculos financeiros são executados  
+    Quando o MRR for processado  
+    Então assinaturas ativas e pró-rata devem ser considerados
+    
+    ---
+    
+    ### Cache — Dados atualizados
+    
+    **Regra 7.**  
+    Dado que um cliente altera seu plano  
+    Quando acesso os dados até 30 segundos após a alteração  
+    Então as informações exibidas devem refletir o estado atual
+    
+    **Regra 8.**  
+    Dado que dados críticos são armazenados em cache  
+    Quando a informação sofrer alteração  
+    Então o cache deve ser invalidado automaticamente
+    
+    **Regra 9.**  
+    Dado que métricas críticas são exibidas  
+    Quando forem armazenadas em cache  
+    Então o tempo máximo permitido deve ser de 5 minutos
+    
+    ---
+    
+    ### Concorrência — Exportações não devem degradar o sistema
+    
+    **Regra 10.**  
+    Dado que solicito exportação de relatório anual  
+    Quando clico em `"Exportar CSV"`  
+    Então o processamento deve ocorrer em background
+    
+    **Regra 11.**  
+    Dado que a exportação está em andamento  
+    Quando o processamento ocorrer  
+    Então outras requisições do sistema não devem sofrer impacto
+    
+    **Regra 12.**  
+    Dado que a exportação foi iniciada  
+    Quando for concluída  
+    Então devo receber uma notificação de sucesso
+    
+    **Regra 13.**  
+    Dado que grandes arquivos são exportados  
+    Quando o processo consumir recursos  
+    Então a memória utilizada não deve ultrapassar limites operacionais
+    
+    ---
+    
+    ## Critérios Técnicos
+    
+    ### Performance — Resolver N+1
+    
+    - Substituir consultas N+1 por carregamento otimizado
+    - Reduzir aproximadamente 300 consultas para poucas queries agregadas
+    - Implementar JOINs e eager loading
+    - Criar índices compostos
+    - Avaliar uso de materialized views
+    
+    ### Regra de Negócio — Centralizar cálculo de MRR
+    
+    - Criar função única `calculateMRR()`
+    - Utilizar a mesma implementação em dashboard, API e relatórios
+    - Documentar regra de negócio
+    - Adicionar testes unitários
+    
+    ### Cache — Estratégia híbrida
+    
+    **Sem cache**
+    - MRR
+    - Active Users
+    - Métricas críticas
+    
+    **Cache curto (5 min)**
+    - Estatísticas
+    - Contadores
+    
+    **Cache longo (1h)**
+    - Dados históricos
+    - Relatórios concluídos
+    
+    ### Exportação
+    
+    - Migrar para background jobs
+    - Utilizar streaming
+    - Processar por chunks
+    - Implementar timeout
+    - Notificar usuário ao concluir
+    
+    ## Contexto do Bug
+    
+    **Severidade:** Crítica
+    
+    ### Impacto no negócio
+    
+    - 15 clientes enterprise em risco de cancelamento
+    - CEO sem confiança nos indicadores
+    - 40h/semana gastas pelo time de Customer Success
+    - Forecasting estratégico comprometido
+    
+    ### Problemas identificados
+    
+    1. Query N+1 gerando centenas de consultas
+    2. MRR calculado de forma diferente em múltiplos lugares
+    3. Cache excessivamente longo e invalidação falhando
+    4. Exportações síncronas travando servidor
+    
+    ## SLA Atual x Esperado
+    
+    | Métrica | Atual | Esperado |
+    |---|---:|---:|
+    | Dashboard | 45s | < 3s |
+    | MRR | 3 valores diferentes | 1 valor padronizado |
+    | Dados em cache | até 24h | máximo 5min |
+    | Exportação | trava sistema | sem impacto |
+    
+    ## Tasks Técnicas Sugeridas
+    
+    ### Sprint 1 — Quick Wins
+    
+    1. Adicionar índices em `company_id`  
+    2. Reduzir TTL de métricas críticas  
+    3. Documentar fórmula oficial do MRR  
+    
+    ### Sprint 2 — Correções principais
+    
+    4. Eliminar problema N+1  
+    5. Centralizar cálculo MRR  
+    6. Corrigir invalidação de cache  
+    7. Migrar exportações para background jobs  
+    
+    ### Sprint 3 — Escala e monitoramento
+    
+    8. Criar materialized views  
+    9. Adicionar APM para slow queries  
+    10. Criar testes de carga para empresas grandes  
+    11. Documentar arquitetura técnica
+    
+    ## Exemplo 9 (Complexidade: Complexa | Tipo: Sincronização, Conflitos, Upload e Memória)
+
+    **Relatório de bug:**  
+    "App mobile offline-first com falhas críticas de sincronização.
+    
+    CONTEXTO:
+    Aplicação mobile (iOS + Android) utilizada por vendedores em campo, frequentemente sem acesso à internet.
+    
+    PROBLEMAS IDENTIFICADOS:
+    
+    1. Conflitos sobrescrevendo dados importantes
+    2. Upload de anexos reiniciando do zero
+    3. Operações sincronizadas fora de ordem
+    4. Crash ao sincronizar grande volume de dados
+    
+    IMPACTO:
+    - 250+ usuários afetados
+    - NPS caiu de 8.5 para 4.2
+    - Churn aumentou 15%
+    - R$ 200k perdidos em oportunidades"
+    
+    **Saída:**
+    
+    # História de Usuário
+    
+    Como um vendedor utilizando o aplicativo em ambientes sem conexão, eu quero que minhas alterações sejam sincronizadas corretamente e sem perda de dados, para que eu possa trabalhar com segurança e confiar no aplicativo como ferramenta crítica do meu trabalho.
+    
+    ## Critérios de Aceitação
+    
+    ### Resolução de Conflitos — Sincronização segura
+    
+    **Regra 1.**  
+    Dado que dois usuários alteram a mesma tarefa enquanto estão offline  
+    Quando ambos sincronizam suas alterações  
+    Então o sistema deve detectar automaticamente o conflito
+    
+    **Regra 2.**  
+    Dado que um conflito foi identificado  
+    Quando a sincronização ocorrer  
+    Então uma cópia das versões conflitantes deve ser preservada
+    
+    **Regra 3.**  
+    Dado que alterações conflitantes existem  
+    Quando o usuário acessar a tarefa  
+    Então o sistema deve permitir resolução manual do conflito
+    
+    **Regra 4.**  
+    Dado que houve sobrescrita potencial de dados  
+    Quando o conflito ocorrer  
+    Então os usuários envolvidos devem ser notificados
+    
+    ---
+    
+    ### Upload Resiliente — Continuidade de anexos
+    
+    **Regra 5.**  
+    Dado que estou enviando um arquivo grande  
+    Quando a conexão cair durante o envio  
+    Então o progresso deve ser salvo automaticamente
+    
+    **Regra 6.**  
+    Dado que a conexão foi restabelecida  
+    Quando o upload for retomado  
+    Então o sistema deve continuar do último ponto salvo
+    
+    **Regra 7.**  
+    Dado que o upload está em execução  
+    Quando o usuário visualizar o progresso  
+    Então a porcentagem atual deve ser exibida em tempo real
+    
+    **Regra 8.**  
+    Dado que ocorrer falha após múltiplas tentativas  
+    Quando o limite de retries for atingido  
+    Então o anexo deve permanecer pendente e o usuário deve ser avisado
+    
+    ---
+    
+    ### Ordenação — Garantia da sequência correta
+    
+    **Regra 9.**  
+    Dado que múltiplas operações foram executadas offline  
+    Quando a sincronização iniciar  
+    Então as operações devem respeitar a ordem cronológica original
+    
+    **Regra 10.**  
+    Dado que uma operação depende da anterior  
+    Quando for enviada ao servidor  
+    Então o processamento deve preservar dependências entre ações
+    
+    **Regra 11.**  
+    Dado que CREATE, UPDATE e DELETE ocorreram em sequência  
+    Quando forem sincronizados  
+    Então o resultado final deve refletir a ordem real dos eventos
+    
+    ---
+    
+    ### Memória — Sincronização escalável
+    
+    **Regra 12.**  
+    Dado que existam mais de 1.500 operações pendentes  
+    Quando a sincronização iniciar  
+    Então o sistema deve processar os dados em lotes
+    
+    **Regra 13.**  
+    Dado que um lote foi processado  
+    Quando a sincronização avançar  
+    Então a memória utilizada deve ser liberada
+    
+    **Regra 14.**  
+    Dado que a sincronização está em andamento  
+    Quando o usuário acompanhar o progresso  
+    Então deve visualizar mensagens como `"Sincronizando 150/1500"`
+    
+    **Regra 15.**  
+    Dado que o processamento está em execução  
+    Quando o usuário desejar interromper  
+    Então deve ser possível pausar e retomar posteriormente
+    
+    **Regra 16.**  
+    Dado que o processo de sincronização ocorre  
+    Quando o aplicativo estiver processando operações  
+    Então o consumo de memória não deve ultrapassar 500MB
+    
+    ---
+    
+    ## Critérios Técnicos
+    
+    ### Resolução de conflitos
+    
+    - Implementar CRDT ou Vector Clocks
+    - Permitir auto-merge para campos independentes
+    - Utilizar resolução manual em conflitos críticos
+    - Armazenar histórico de versões
+    
+    ### Upload resiliente
+    
+    - Dividir arquivos em chunks
+    - Salvar checkpoints periódicos
+    - Retomar upload interrompido
+    - Implementar retry com exponential backoff
+    
+    ### Ordenação de operações
+    
+    - Criar operation log persistente
+    - Adicionar `client_timestamp`
+    - Servidor deve respeitar timestamps do cliente
+    - Processar operações dependentes atomicamente
+    
+    ### Sincronização em lotes
+    
+    - Processar lotes de 50 registros
+    - Utilizar streaming
+    - Liberar memória entre lotes
+    - Aplicar rate limiting
+    
+    ### Gerenciamento de memória
+    
+    - Utilizar cursores SQLite
+    - Não carregar todos os registros simultaneamente
+    - Monitorar uso de memória
+    - Pausar sincronização automaticamente em uso excessivo
+    
+    ## Contexto do Bug
+    
+    **Severidade:** Crítica
+    
+    ### Impacto no negócio
+    
+    - 250+ usuários afetados
+    - NPS: 8.5 → 4.2
+    - Churn: +15%
+    - R$ 200k em oportunidades perdidas
+    - 80% das avaliações negativas mencionam perda de dados
+    
+    ### Problemas identificados
+    
+    1. Estratégia `last-write-wins` causando perda de dados
+    2. Upload sem retomada
+    3. Operações processadas fora de ordem
+    4. Sincronização carregando tudo em memória
+    
+    ## Arquitetura impactada
+    
+    **Mobile**
+    - React Native
+    - iOS
+    - Android
+    
+    **Persistência local**
+    - SQLite
+    - WatermelonDB
+    
+    **Backend**
+    - Node.js
+    - PostgreSQL
+    
+    **Sincronização**
+    - REST API
+    
+    ## Tasks Técnicas Sugeridas
+    
+    ### Fase 1 — Correções urgentes
+    
+    1. Implementar sincronização em lotes  
+    2. Adicionar retry exponencial  
+    3. Criar logs detalhados de sincronização  
+    
+    ### Fase 2 — Correções estruturais
+    
+    4. Implementar detecção de conflitos  
+    5. Criar interface para resolução manual  
+    6. Implementar upload resumível  
+    7. Adicionar timestamps do cliente  
+    8. Garantir ordenação cronológica  
+    
+    ### Fase 3 — Arquitetura resiliente
+    
+    9. Migrar para CRDT  
+    10. Criar operation log persistente  
+    11. Otimizar consultas SQLite  
+    12. Criar dashboard de saúde de sincronização  
+    
+    ### Fase 4 — UX e qualidade
+    
+    13. Melhorar feedback visual  
+    14. Permitir pausar e continuar sincronização  
+    15. Criar testes de sincronização massiva  
+    16. Documentar arquitetura
+    
+    ## Métricas de Sucesso
+    
+    | Indicador | Atual | Esperado |
+    |---|---:|---:|
+    | Perda de dados | 30 casos/semana | 0 |
+    | Crash em sincronização | 15% | <1% |
+    | NPS | 4.2 | >7.5 |
+    | Taxa de sincronização | 75% | >99% |
+    | Tempo sync (1000 itens) | Crash | <60s |
+    | Memória | 850MB | <500MB |
     
     ## Restrições
     * Não inclua explicações, introduções, conclusões ou seções extras fora do formato de saída definido.
