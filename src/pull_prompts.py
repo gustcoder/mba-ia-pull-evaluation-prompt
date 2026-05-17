@@ -16,35 +16,43 @@ from pathlib import Path
 from dotenv import load_dotenv
 from langchain import hub
 from langsmith import Client
-from utils import save_yaml, check_env_vars, print_section_header
+from ruamel.yaml.scalarstring import LiteralScalarString
+from utils import save_yaml, print_section_header
 
 load_dotenv()
 
 
 def pull_prompts_from_langsmith():
     print_section_header("Pulling prompt from LangSmith")
-
     client = Client()
-
     prompt = client.pull_prompt("leonanluppi/bug_to_user_story_v1")
 
+    # Prompt Vars
+    system_prompt = LiteralScalarString(
+        prompt.messages[0].prompt.template
+    )
+    user_prompt = prompt.messages[1].prompt.template
+    version = "v1"
+    tags = [
+        "bug-analysis",
+        "user-story",
+        "product-management",
+    ]
     description = "Prompt para converter relatos de bugs em User Stories"
+
+    # Build Prompt Data
     prompt_data = {
         "bug_to_user_story_v1": {
             "description": f"{description}",
-            "system_prompt": prompt.messages[0].prompt.template,
-            "user_prompt": prompt.messages[1].prompt.template,
-            "version": "v1",
+            "system_prompt": system_prompt,
+            "user_prompt": user_prompt,
+            "version": version,
             "created_at": date.today().isoformat(),
-            "tags": [
-                "bug-analysis",
-                "user-story",
-                "product-management",
-            ],
+            "tags": tags,
         }
     }
 
-    output_path = Path("prompts/bug_to_user_story_v1_new.yml")
+    output_path = Path("prompts/bug_to_user_story_v1.yml")
 
     save_yaml(prompt_data, str(output_path))
 

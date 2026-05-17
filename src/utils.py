@@ -3,7 +3,7 @@ Funções auxiliares para o projeto de otimização de prompts.
 """
 
 import os
-import yaml
+from ruamel.yaml import YAML
 import json
 from typing import Dict, Any, Optional
 from pathlib import Path
@@ -52,8 +52,11 @@ def save_yaml(data: Dict[str, Any], file_path: str) -> bool:
         output_file = Path(file_path)
         output_file.parent.mkdir(parents=True, exist_ok=True)
 
+        yaml = YAML()
+        yaml.preserve_quotes = True
+
         with open(output_file, 'w', encoding='utf-8') as f:
-            yaml.dump(data, f, allow_unicode=True, sort_keys=False, indent=2)
+            yaml.dump(data, f)
 
         return True
     except Exception as e:
