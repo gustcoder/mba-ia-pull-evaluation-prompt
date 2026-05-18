@@ -39,6 +39,17 @@
 ## Resultados Finais
 <img width="914" height="1023" alt="image" src="https://github.com/user-attachments/assets/1dc93fe3-d93c-4d1b-b062-d8fb0ecb4943" />
 
+
+**Tabela Comparativa**
+| Métrica | bug_to_user_story_v1 | bug_to_user_story_v2 | Diferença |
+| :--- | :---: | :---: | :---: |
+| **Clarity** | 0.86 | 0.95 | +0.09 |
+| **Helpfulness** | 0.86 | 0.94 | +0.08 |
+| **Precision** | 0.85 | 0.94 | +0.09 |
+| **Correctness** | 0.79 | 0.92 | +0.13 |
+| **F1-Score** | 0.74 | 0.91 | +0.17 |
+| **Média Geral** | **0.8196** | **0.9317** | **+0.1121** |
+
 ## Como Executar
 
 ```bash
