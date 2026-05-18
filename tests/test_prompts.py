@@ -153,8 +153,11 @@ class TestPrompts:
         prompts = load_prompts(self.prompt_file)
 
         patterns = [
-            r"\[TODO\]",
+            r"todo:",
+            r"@todo:",
+            r"\[TODO:\]",
             r"TODO:",
+            r"@TODO:",
             r"FIXME",
             r"XXX"
         ]
