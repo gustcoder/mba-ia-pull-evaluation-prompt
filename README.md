@@ -53,7 +53,10 @@ docker exec -it python_app_evaluation_prompt pytest tests/test_prompts.py
 ```
 
 ## Evidências no LangSmith
+🌐
 [Link Tracing_mba-ia-pull-evaluation-prompt](https://smith.langchain.com/o/06c96cef-80d5-45d8-a69a-c82731cb692c/projects/p/e1280f82-97ec-420c-b1b8-79913fd1735c?scroll_to=feedback&timeModel=%7B%22duration%22%3A%2230d%22%7D)
 
+🖼️
+**Prints:**
 <img width="1902" height="900" alt="image" src="https://github.com/user-attachments/assets/e7b964ae-9f48-40a4-ba48-20866752abab" />
 <img width="1265" height="892" alt="image" src="https://github.com/user-attachments/assets/43226f8b-c6df-493b-a8e2-8610a5144bf8" />
