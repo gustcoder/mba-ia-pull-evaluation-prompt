@@ -24,8 +24,17 @@
 ---
 
 ## Técnicas Aplicadas (Fase 2)
-* **Role Prompting:** trabalhar com um papel designado para a IA ajuda no contexto e na atuação na hora de avaliar e processar os prompts, por isso escolhi esta técnica.
-* **Few-Shot Learning:** exemplos, juntamente com o papel definido, constroem um bom combo para execução assertiva de tarefas visando os outputs desejados.
+**1. Role Prompting:**
+
+* **Justificativa:** trabalhar com um papel designado para a IA ajuda no contexto e na atuação na hora de avaliar e processar os prompts, por isso escolhi esta técnica.
+
+* **Exemplos práticos:** pesquisas e experimentos com iteração me ajudaram a refinar o role, melhorando os resultados, onde a cada ajuste eu executava um novo evaluate para comparar os resultados.
+
+**2. Few-Shot Learning**
+
+* **Justificativa:** exemplos, juntamente com o papel definido, constroem um bom combo para execução assertiva de tarefas visando os outputs desejados.
+
+* **Exemplos práticos:** tal como o Role, diversas e diversas tentativas foram necessárias, sempre tentando refinar os exemplos com ajuda de um LLM, afim de polir a estrutura e atingir o sonhado 0.9. Eu pegava um exemplo específico e analisava o score fraco dele (ex.: F1) e, a partir disso, buscava exemplos de como melhora-lo.
 
 ## Resultados Finais
 <img width="914" height="1023" alt="image" src="https://github.com/user-attachments/assets/1dc93fe3-d93c-4d1b-b062-d8fb0ecb4943" />
