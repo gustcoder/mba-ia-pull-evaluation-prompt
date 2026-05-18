@@ -24,8 +24,8 @@
 ---
 
 ## Técnicas Aplicadas (Fase 2)
-* Role Prompting: trabalhar com um papel designado para a IA ajuda no contexto e na atuação na hora de avaliar e processar os prompts, por isso escolhi esta técnica.
-* Few-Shot Learning: exemplos, juntamente com o papel definido, constroem um bom combo para execução assertiva de tarefas visando os outputs desejados.
+* **Role Prompting:** trabalhar com um papel designado para a IA ajuda no contexto e na atuação na hora de avaliar e processar os prompts, por isso escolhi esta técnica.
+* **Few-Shot Learning:** exemplos, juntamente com o papel definido, constroem um bom combo para execução assertiva de tarefas visando os outputs desejados.
 
 ## Resultados Finais
 <img width="914" height="1023" alt="image" src="https://github.com/user-attachments/assets/1dc93fe3-d93c-4d1b-b062-d8fb0ecb4943" />
