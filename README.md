@@ -47,6 +47,9 @@ docker exec -it python_app_evaluation_prompt python src/push_prompts.py
 
 # Executar avaliação
 docker exec -it python_app_evaluation_prompt python src/evaluate.py
+
+# Executar testes unitários
+docker exec -it python_app_evaluation_prompt python src/evaluate.py
 ```
 
 ## Evidências no LangSmith
